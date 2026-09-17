@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResourcePilot | Ramboll</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f4f8fc;
+            color: #18324a;
+        }
+
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 235px;
+            background: #123b6d;
+            color: white;
+            padding: 28px 18px;
+            position: fixed;
+            height: 100vh;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 11px;
+            opacity: .7;
+            margin-bottom: 38px;
+            letter-spacing: .5px;
+        }
+
+        .nav-item {
+            padding: 13px 14px;
+            border-radius: 9px;
+            margin-bottom: 7px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .nav-item.active,
+        .nav-item:hover {
+            background: #1e5aa8;
+        }
+
+        /* MAIN */
+
+        .main {
+            margin-left: 235px;
+            width: calc(100% - 235px);
+            padding: 28px 36px;
+        }
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .topbar h1 {
+            font-size: 27px;
+            margin-bottom: 5px;
+        }
+
+        .topbar p {
+            color: #71828a;
+            font-size: 14px;
+        }
+
+        .status {
+            background: #eaf2ff;
+            color: #245ea8;
+            padding: 9px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* KPI */
+
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .kpi {
+            background: white;
+            padding: 20px;
+            border-radius: 13px;
+            border: 1px solid #dfe8f1;
+        }
+
+        .kpi-label {
+            color: #71828a;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #123b6d;
+        }
+
+        /* CONTENT */
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.15fr .85fr;
+            gap: 22px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #dfe8f1;
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 22px;
+            border-bottom: 1px solid #e8eef4;
+        }
+
+        .card-header h2 {
+            font-size: 17px;
+        }
+
+        .card-header p {
+            color: #7b8b91;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        /* REQUESTS */
+
+        .request {
+            padding: 17px 22px;
+            border-bottom: 1px solid #edf1f2;
+            cursor: pointer;
+            transition: .15s;
+        }
+
+        .request:hover,
+        .request.selected {
+            background: #edf5ff;
+        }
+
+        .request-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .request-id {
+            font-size: 11px;
+            color: #68818a;
+            font-weight: 600;
+        }
+
+        .request-title {
+            font-weight: 650;
+            margin-top: 4px;
+        }
+
+        .request-meta {
+            font-size: 12px;
+            color: #778990;
+            margin-top: 5px;
+        }
+
+        .risk {
+            padding: 5px 9px;
+            border-radius: 15px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .high {
+            background: #fff0ee;
+            color: #c44738;
+        }
+
+        .medium {
+            background: #fff7df;
+            color: #9b7300;
+        }
+
+        .low {
+            background: #eaf2ff;
+            color: #245ea8;
+        }
+
+        /* PROPOSALS */
+
+        .proposal-area {
+            padding: 22px;
+            min-height: 400px;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 100px 20px;
+            color: #829198;
+        }
+
+        .proposal {
+            border: 1px solid #dce6ef;
+            border-radius: 12px;
+            padding: 17px;
+            margin-bottom: 13px;
+        }
+
+        .proposal.top {
+            border-left: 4px solid #2563a8;
+        }
+
+        .candidate {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+        }
+
+        .candidate h3 {
+            font-size: 16px;
+        }
+
+        .candidate small {
+            color: #7b8b91;
+        }
+
+        .score {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f5fad;
+        }
+
+        .health {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 4px 9px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .health.good {
+            background: #eaf2ff;
+            color: #245ea8;
+        }
+
+        .health.review {
+            background: #fff4d6;
+            color: #946f00;
+        }
+
+        .health.unsafe {
+            background: #ffeded;
+            color: #b83e35;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 14px 0;
+        }
+
+        .metric {
+            background: #f5f8fb;
+            padding: 9px;
+            border-radius: 7px;
+        }
+
+        .metric span {
+            display: block;
+            font-size: 9px;
+            color: #7c8c92;
+        }
+
+        .metric strong {
+            font-size: 12px;
+        }
+
+        .reasoning {
+            background: #edf5ff;
+            padding: 11px;
+            border-radius: 8px;
+            font-size: 11px;
+            line-height: 1.7;
+            color: #4b626b;
+        }
+
+        .actions {
+            margin-top: 13px;
+            display: flex;
+            gap: 8px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 7px;
+            padding: 9px 14px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        .approve {
+            background: #1f5fad;
+            color: white;
+        }
+
+        .reject {
+            background: #edf1f5;
+            color: #53656c;
+        }
+
+        button:hover {
+            opacity: .85;
+        }
+
+        button:disabled {
+            opacity: .65;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            padding: 40px;
+            text-align: center;
+            color: #73858c;
+        }
+
+        .error {
+            color: #b83e35;
+            text-align: center;
+            padding: 40px;
+        }
+
+        @media(max-width: 900px) {
+
+            .sidebar {
+                width: 190px;
+            }
+
+            .main {
+                margin-left: 190px;
+                width: calc(100% - 190px);
+                padding: 20px;
+            }
+
+            .kpis {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            ResourcePilot
+        </div>
+
+        <div class="subtitle">
+            INTELLIGENT RESOURCE ALLOCATION
+        </div>
+
+        <div class="nav-item active">
+            ▦ Dashboard
+        </div>
+
+        <div class="nav-item">
+            ◈ Open Requests
+        </div>
+
+        <div class="nav-item">
+            ◎ Proposals
+        </div>
+
+        <div class="nav-item">
+            ✓ Approvals
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+
+    <main class="main">
+
+        <div class="topbar">
+
+            <div>
+                <h1>Resourcing Intelligence</h1>
+
+                <p>
+                    Make informed staffing decisions with explainable recommendations.
+                </p>
+            </div>
+
+            <div class="status">
+                ● System Operational
+            </div>
+
+        </div>
+
+
+        <!-- KPI -->
+
+        <section class="kpis">
+
+            <div class="kpi">
+                <div class="kpi-label">
+                    PEOPLE
+                </div>
+
+                <div class="kpi-value" id="people">
+                    —
+                </div>
+            </div>
+
+
+            <div class="kpi">
+                <div class="kpi-label">
+                    ACTIVE PROJECTS
+                </div>
+
+                <div class="kpi-value" id="projects">
+                    —
+                </div>
+            </div>
+
+
+            <div class="kpi">
+                <div class="kpi-label">
+                    OPEN REQUESTS
+                </div>
+
+                <div class="kpi-value" id="requestsCount">
+                    —
+                </div>
+            </div>
+
+
+            <div class="kpi">
+                <div class="kpi-label">
+                    APPROVAL CANDIDATES
+                </div>
+
+                <div class="kpi-value" id="pending">
+                    —
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- MAIN GRID -->
+
+        <div class="grid">
+
+            <!-- REQUESTS -->
+
+            <section class="card">
+
+                <div class="card-header">
+
+                    <h2>
+                        Open Resourcing Requests
+                    </h2>
+
+                    <p>
+                        Select a request to generate intelligent proposals.
+                    </p>
+
+                </div>
+
+                <div id="requestList">
+
+                    <div class="loading">
+                        Loading requests...
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- PROPOSALS -->
+
+            <section class="card">
+
+                <div class="card-header">
+
+                    <h2 id="proposalTitle">
+                        Recommendation Engine
+                    </h2>
+
+                    <p>
+                        Explainable candidate evaluation
+                    </p>
+
+                </div>
+
+
+                <div class="proposal-area" id="proposalArea">
+
+                    <div class="empty">
+
+                        <div style="font-size:35px;margin-bottom:12px;">
+                            ◎
+                        </div>
+
+                        Select an open request to evaluate candidates.
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script>
+
+const API = "http://127.0.0.1:8000";
+
+let currentRequest = null;
+
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+async function loadDashboard() {
+
+    try {
+
+        const response = await fetch(`${API}/dashboard`);
+
+        if (!response.ok) {
+            throw new Error("Dashboard API failed");
+        }
+
+        const data = await response.json();
+
+        document.getElementById("people").textContent =
+            data.people;
+
+        document.getElementById("projects").textContent =
+            data.projects;
+
+        document.getElementById("requestsCount").textContent =
+            data.open_requests;
+
+        document.getElementById("pending").textContent =
+            data.pending_proposals;
+
+    }
+
+    catch(error) {
+
+        console.error("Dashboard error:", error);
+
+    }
+
+}
+
+
+/* =========================================================
+   REQUESTS
+========================================================= */
+
+async function loadRequests() {
+
+    try {
+
+        const response =
+            await fetch(`${API}/requests`);
+
+        if (!response.ok) {
+            throw new Error("Requests API failed");
+        }
+
+        const requests =
+            await response.json();
+
+        const container =
+            document.getElementById("requestList");
+
+        container.innerHTML = "";
+
+        requests.forEach((request, index) => {
+
+            const riskClass =
+                String(request.risk || "low").toLowerCase();
+
+            const div =
+                document.createElement("div");
+
+            div.className = "request";
+
+            div.innerHTML = `
+
+                <div class="request-row">
+
+                    <div>
+
+                        <div class="request-id">
+                            ${request.id}
+                        </div>
+
+                        <div class="request-title">
+                            ${request.role}
+                        </div>
+
+                        <div class="request-meta">
+                            ${request.project_name}
+                            ·
+                            ${request.hours} hrs/week
+                        </div>
+
+                    </div>
+
+                    <span class="risk ${riskClass}">
+                        ${request.risk}
+                    </span>
+
+                </div>
+
+            `;
+
+            div.onclick = () =>
+                selectRequest(request, div);
+
+            container.appendChild(div);
+
+
+            if(index === 0) {
+
+                selectRequest(
+                    request,
+                    div
+                );
+
+            }
+
+        });
+
+    }
+
+    catch(error) {
+
+        document.getElementById("requestList").innerHTML = `
+
+            <div class="error">
+                Unable to load requests.
+                <br>
+                <small>${error.message}</small>
+            </div>
+
+        `;
+
+        console.error(error);
+
+    }
+
+}
+
+
+/* =========================================================
+   SELECT REQUEST
+========================================================= */
+
+async function selectRequest(request, element) {
+
+    currentRequest = request;
+
+    document.querySelectorAll(".request")
+        .forEach(el =>
+            el.classList.remove("selected")
+        );
+
+    if(element) {
+        element.classList.add("selected");
+    }
+
+    document.getElementById("proposalTitle")
+        .textContent =
+        `${request.id} · ${request.role}`;
+
+
+    document.getElementById("proposalArea")
+        .innerHTML = `
+
+            <div class="loading">
+                Analysing 30 candidates...
+            </div>
+
+        `;
+
+
+    try {
+
+        /*
+         * IMPORTANT:
+         * Recommendation API is called independently.
+         * If proposal history has a problem, recommendations
+         * should still be displayed.
+         */
+
+        const proposalResponse =
+            await fetch(
+                `${API}/requests/${request.id}/proposals`
+            );
+
+
+        if(!proposalResponse.ok) {
+
+            let message =
+                "Unable to generate proposals.";
+
+            try {
+
+                const errorData =
+                    await proposalResponse.json();
+
+                message =
+                    errorData.detail || message;
+
+            }
+
+            catch(_) {}
+
+            throw new Error(message);
+
+        }
+
+
+        const data =
+            await proposalResponse.json();
+
+
+        /*
+         * Retrieve saved proposals separately.
+         */
+
+        let savedProposals = [];
+
+        try {
+
+            const savedResponse =
+                await fetch(`${API}/proposals`);
+
+            if(savedResponse.ok) {
+
+                savedProposals =
+                    await savedResponse.json();
+
+            }
+
+        }
+
+        catch(historyError) {
+
+            console.warn(
+                "Proposal history unavailable:",
+                historyError
+            );
+
+        }
+
+
+        /*
+         * Match people to saved proposal IDs.
+         */
+
+        const persisted =
+            savedProposals
+                .filter(
+                    p =>
+                    String(p.request_id) ===
+                    String(request.id)
+                )
+                .reduce(
+                    (map, p) => {
+
+                        const key =
+                            String(p.person_id);
+
+                        if(
+                            !map[key] ||
+                            Number(p.id) >
+                            Number(map[key].id)
+                        ) {
+
+                            map[key] = p;
+
+                        }
+
+                        return map;
+
+                    },
+                    {}
+                );
+
+
+        /*
+         * Add proposal ID + status.
+         */
+
+        const proposals =
+            (data.proposals || [])
+            .map(proposal => {
+
+                const saved =
+                    persisted[
+                        String(proposal.person_id)
+                    ];
+
+                return {
+
+                    ...proposal,
+
+                    proposal_id:
+                        proposal.proposal_id ||
+                        (saved
+                            ? saved.id
+                            : null),
+
+                    status:
+                        saved
+                            ? saved.status
+                            : "PENDING"
+
+                };
+
+            });
+
+
+        renderProposals(proposals);
+
+    }
+
+    catch(error) {
+
+        document.getElementById("proposalArea")
+            .innerHTML = `
+
+                <div class="error">
+
+                    Unable to generate proposals.
+
+                    <br><br>
+
+                    <small>
+                        ${error.message}
+                    </small>
+
+                </div>
+
+            `;
+
+        console.error(
+            "Proposal generation error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   RENDER PROPOSALS
+========================================================= */
+
+function renderProposals(proposals) {
+
+    const container =
+        document.getElementById("proposalArea");
+
+
+    if(!proposals.length) {
+
+        container.innerHTML = `
+
+            <div class="empty">
+
+                No viable candidates found.
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML = "";
+
+
+    proposals.forEach(
+        (proposal, index) => {
+
+            const div =
+                document.createElement("div");
+
+            div.className =
+                `proposal ${
+                    index === 0
+                        ? "top"
+                        : ""
+                }`;
+
+
+            const reasons =
+                (proposal.reasoning || [])
+                .map(
+                    reason =>
+                    `✓ ${reason}`
+                )
+                .join("<br>");
+
+
+            let actionButtons = "";
+
+
+            if(proposal.status === "APPROVED") {
+
+                actionButtons = `
+
+                    <button
+                        class="approve"
+                        disabled>
+
+                        ✓ Approved
+
+                    </button>
+
+                `;
+
+            }
+
+            else if(
+                proposal.status === "REJECTED"
+            ) {
+
+                actionButtons = `
+
+                    <button
+                        class="reject"
+                        disabled>
+
+                        ✕ Rejected
+
+                    </button>
+
+                `;
+
+            }
+
+            else {
+
+                actionButtons = `
+
+                    <button
+                        class="approve"
+                        onclick="
+                            approveProposal(
+                                ${proposal.proposal_id || "null"},
+                                '${proposal.person_id}',
+                                '${currentRequest.project_owner}'
+                            )
+                        ">
+
+                        Approve
+
+                    </button>
+
+
+                    <button
+                        class="reject"
+                        onclick="
+                            rejectProposal(
+                                ${proposal.proposal_id || "null"},
+                                '${currentRequest.project_owner}'
+                            )
+                        ">
+
+                        Reject
+
+                    </button>
+
+                `;
+
+            }
+
+
+            div.innerHTML = `
+
+                <div class="candidate">
+
+                    <div>
+
+                        <h3>
+                            ${
+                                index === 0
+                                    ? "★ "
+                                    : ""
+                            }
+                            ${proposal.name}
+                        </h3>
+
+                        <small>
+
+                            ${proposal.role}
+                            ·
+                            ${proposal.grade}
+                            ·
+                            ${proposal.location}
+
+                        </small>
+
+                    </div>
+
+
+                    <div class="score">
+
+                        ${proposal.overall_score}
+
+                    </div>
+
+                </div>
+
+
+                <span class="
+                    health
+                    ${String(
+                        proposal.health || "review"
+                    ).toLowerCase()}
+                ">
+
+                    ${proposal.health}
+
+                </span>
+
+
+                <div class="metrics">
+
+
+                    <div class="metric">
+
+                        <span>
+                            SKILL MATCH
+                        </span>
+
+                        <strong>
+                            ${proposal.skill_score}%
+                        </strong>
+
+                    </div>
+
+
+                    <div class="metric">
+
+                        <span>
+                            AVAILABLE
+                        </span>
+
+                        <strong>
+                            ${proposal.availability}h
+                        </strong>
+
+                    </div>
+
+
+                    <div class="metric">
+
+                        <span>
+                            EST. COST
+                        </span>
+
+                        <strong>
+                            $${proposal.estimated_cost}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="metric">
+
+                        <span>
+                            RISK
+                        </span>
+
+                        <strong>
+                            ${proposal.risk_score}/100
+                        </strong>
+
+                    </div>
+
+
+                </div>
+
+
+                <div class="reasoning">
+
+                    <strong>
+                        Why this proposal?
+                    </strong>
+
+                    <br>
+
+                    ${reasons}
+
+                </div>
+
+
+                <div class="actions">
+
+                    ${actionButtons}
+
+                </div>
+
+            `;
+
+
+            container.appendChild(div);
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   APPROVAL
+========================================================= */
+
+async function approveProposal(
+    proposalId,
+    personId,
+    owner
+) {
+
+    if(proposalId === null) {
+
+        alert(
+            "Proposal record not found. " +
+            "Please refresh the request."
+        );
+
+        return;
+
+    }
+
+
+    const reason =
+        prompt(
+            "Approval reason:",
+            "Suitable based on skills, availability, cost and delivery risk."
+        );
+
+
+    if(reason === null) {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API}/proposals/${proposalId}/decision`,
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        owner: owner,
+
+                        decision:
+                            "APPROVE",
+
+                        reason:
+                            reason
+
+                    })
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if(response.ok) {
+
+            alert(
+                "✓ Proposal approved.\n\n" +
+                "Allocation has been created successfully."
+            );
+
+
+            await loadDashboard();
+
+
+            if(currentRequest) {
+
+                const selected =
+                    document.querySelector(
+                        ".request.selected"
+                    );
+
+                await selectRequest(
+                    currentRequest,
+                    selected
+                );
+
+            }
+
+        }
+
+        else {
+
+            alert(
+                result.detail ||
+                "Approval failed."
+            );
+
+        }
+
+    }
+
+    catch(error) {
+
+        alert(
+            "Backend connection error."
+        );
+
+        console.error(error);
+
+    }
+
+}
+
+
+/* =========================================================
+   REJECTION
+========================================================= */
+
+async function rejectProposal(
+    proposalId,
+    owner
+) {
+
+    if(proposalId === null) {
+
+        alert(
+            "Proposal record not found. " +
+            "Please refresh the request."
+        );
+
+        return;
+
+    }
+
+
+    const reason =
+        prompt(
+            "Rejection reason:",
+            "Not suitable based on current project requirements."
+        );
+
+
+    if(reason === null) {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `${API}/proposals/${proposalId}/decision`,
+                {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        owner: owner,
+
+                        decision:
+                            "REJECT",
+
+                        reason:
+                            reason
+
+                    })
+
+                }
+            );
+
+
+        const result =
+            await response.json();
+
+
+        if(response.ok) {
+
+            alert(
+                "✓ Proposal rejected.\n\n" +
+                "No allocation was created."
+            );
+
+
+            await loadDashboard();
+
+
+            if(currentRequest) {
+
+                const selected =
+                    document.querySelector(
+                        ".request.selected"
+                    );
+
+                await selectRequest(
+                    currentRequest,
+                    selected
+                );
+
+            }
+
+        }
+
+        else {
+
+            alert(
+                result.detail ||
+                "Rejection failed."
+            );
+
+        }
+
+    }
+
+    catch(error) {
+
+        alert(
+            "Backend connection error."
+        );
+
+        console.error(error);
+
+    }
+
+}
+
+
+/* =========================================================
+   START
+========================================================= */
+
+loadDashboard();
+
+loadRequests();
+
+</script>
+
+</body>
+</html>
